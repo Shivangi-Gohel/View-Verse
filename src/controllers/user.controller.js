@@ -251,6 +251,8 @@ const getCurrentUser = asyncHandler(async(req, res) => {
 
 const updateAccountDetails = asyncHandler(async(req, res) => {
     const {fullname, email} = req.body
+    console.log(fullname, email);
+    
 
     if(!fullname || !email) {
         throw new ApiError(400, "All fields are required")
@@ -274,7 +276,7 @@ const updateAccountDetails = asyncHandler(async(req, res) => {
 
 const updateUserAvatar = asyncHandler(async(req, res) => {
     const avatarLocalPath = req.file?.path
-
+    
     if(!avatarLocalPath) {
         throw new ApiError(400, "Avatar file is missing")
     }
@@ -333,7 +335,7 @@ const updateUserCoverImage = asyncHandler(async(req, res) => {
 })
 
 const getUserChannelProfile = asyncHandler(async(req, res) => {
-    const {username} = req.params
+    const {username} = req.params    
 
     if(!username?.trim()) {
         throw new ApiError(400, "username is missing")
@@ -341,7 +343,7 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
 
     const channel = await User.aggregate([
         {
-            $match: {
+            $match: {   
                 username: username?.toLowerCase()
             }
         },
@@ -364,7 +366,7 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
         {
             $addFields: {
                 subscribersCount: {
-                    $size: "$Subscribers" 
+                    $size: "$subscribers" 
                 },
                 channelsSubscribedCount: {
                     $size: "$subscribedTo"
@@ -383,7 +385,7 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
                 fullname: 1,
                 username:1,
                 subscribersCount: 1,
-                channelsSubscribedCount: 1,
+                channelsSubscribedToCount: 1,
                 isSubscribed: 1,
                 avatar: 1,
                 coverImage: 1,
@@ -394,7 +396,7 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
 
     if(!channel?.length) {
         throw new ApiError(404, "Channel does not exists")
-    }
+    }   
 
     return res
     .status(200)
@@ -451,7 +453,7 @@ const getWatchHistory = asyncHandler(async(req, res) => {
     .json(
         new ApiResponse(
             200,
-            user[0].watchHistory[0],
+            user[0].watchHistory,
             "Watch history fetched successfully"
         )
     )
